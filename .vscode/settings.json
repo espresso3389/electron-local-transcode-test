@@ -1,0 +1,8 @@
+{
+  "files.exclude": {
+    ".compiled/*.map": true,
+    "node_modules/": true,
+    "**/._*": true,
+    "package-lock.json": true
+  }
+}

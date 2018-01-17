@@ -1,0 +1,23 @@
+{
+  "version": "0.1.0",
+  "command": "npm",
+  "isShellCommand": true,
+  "args": ["run"],
+  "showOutput": "silent",
+  "tasks": [
+    {
+      "taskName": "compile",
+      "isBuildCommand": true,
+      "isTestCommand": false,
+      "showOutput": "silent",
+      "args": []
+    },
+    {
+      "taskName": "electron-rebuild",
+      "isBuildCommand": true,
+      "showOutput": "always",
+      "isShellCommand": true,
+      "command": "${workspaceRoot}/node_modules/.bin/electron-rebuild"
+    }
+  ]
+}

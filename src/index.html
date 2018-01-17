@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <title>Electron/ffmpeg realtime transcoding Experiment</title>
+    <style>
+      body {
+        background-color: black;
+        color: rgb(245, 245, 245);
+      }
+      #clientPane {
+        position: absolute;
+        top: 0; right: 0; bottom: 0; left: 0;
+      }
+      #video {
+        width: 100%;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="clientPane">
+        <h1 id="title">Drop a movie file here.</h1>
+        <video id='video' controls autoplay>
+    </div>
+    <script>
+      let electron = require('electron');
+      let clientPane = document.getElementById('clientPane');
+      window.onresize = () => {
+        clientPane.style.width = window.innerWidth +'px';
+        clientPane.style.height = window.innerHeight +'px';
+      };
+      clientPane.ondragover = e => e.preventDefault();
+      clientPane.ondrop = e => {
+        e.preventDefault();
+        let file = e.dataTransfer.files[0].path;
+        console.log(file);
+        electron.ipcRenderer.send('movie', {
+          filename: file,
+          width: 960,
+          height: 540
+        });
+      };
+      electron.ipcRenderer.on('movie-uri', (event, arg) => {
+        let video = document.getElementById('video');
+        video.style.display = 'block';
+        video.src = arg;
+      });
+    </script>
+  </body>
+</html>
