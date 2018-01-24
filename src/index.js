@@ -9,6 +9,9 @@ import child_process from 'child_process';
 import uuidV4 from 'uuid/v4';
 import windowStateKeeper from "electron-window-state";
 import isRunningInAsar from 'electron-is-running-in-asar';
+import os from 'os';
+
+const cpuCount = os.cpus().length;
 
 if (isRunningInAsar())
   ffmpeg.path = ffmpeg.path.replace('app.asar', 'app.asar.unpacked');
@@ -85,8 +88,8 @@ http.createServer((request, response) => {
     "-vb", "2M",
     "-pix_fmt", "yuv420p",
     "-deadline", "realtime",
-    "-cpu-used", "8",
-    "-threads", "8",
+    "-cpu-used", String(cpuCount),
+    "-threads", String(cpuCount),
     "pipe:1", // stdout
   ]);
   proc.stderr.on('data', buf => {
