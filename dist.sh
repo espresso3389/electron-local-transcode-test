@@ -11,7 +11,7 @@ message_and_exit() {
   else
     MESSAGE=$2
   fi
-  curl -k -XPOST -d "token=${SLACK_TOKEN}" -d "channel=#vividworks" -d "text=${CI_PROJECT_NAME} (Mac) ${MESSAGE}" -d "username=GitLab CI" "https://slack.com/api/chat.postMessage"
+  curl -k -XPOST -d "token=${SLACK_TOKEN}" -d "channel=#general" -d "text=${CI_PROJECT_NAME} (Mac) ${MESSAGE}" -d "username=GitLab CI" "https://slack.com/api/chat.postMessage"
   exit $1
 }
 
