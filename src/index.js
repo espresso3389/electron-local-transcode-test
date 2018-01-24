@@ -68,14 +68,15 @@ http.createServer((request, response) => {
 
   response.writeHead(200, {'Content-Type': 'video/webm'});
   const proc = child_process.spawn(ffmpeg.path, [
-    '-preset', 'ultrafast', '-tune', 'zerolatency',
     '-i', movie.filename,
-    '-f', 'webm',
     '-s', movie.width + 'x' + movie.height,
-    "-g", "30", //"-r","30", // Framerate
-    "-minrate", "1M", "-maxrate", "1M", "-b:v", "1M",
-    "-vcodec","libvpx", // H.264
-    "-acodec","libvorbis", // Vorbis
+    '-f', 'webm',
+    "-vcodec","libvpx-vp9",
+    "-acodec","libvorbis",
+    "-g","25",
+    "-crf", "30", "-b:v", "2000k",
+    "-deadline", "realtime",
+    "-cpu-used", "6",
     "pipe:1", // stdout
   ]);
   proc.stderr.on('data', buf => {
