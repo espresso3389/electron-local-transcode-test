@@ -8,8 +8,11 @@ import http from "http";
 import child_process from 'child_process';
 import uuidV4 from 'uuid/v4';
 import windowStateKeeper from "electron-window-state";
+import isRunningInAsar from 'electron-is-running-in-asar';
 
-console.log(ffmpeg.path, ffmpeg.version);
+if (isRunningInAsar())
+  ffmpeg.path = ffmpeg.path.replace('app.asar', 'app.asar.unpacked');
+  console.log(ffmpeg.path, ffmpeg.version);
 
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;

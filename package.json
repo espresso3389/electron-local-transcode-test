@@ -1,6 +1,6 @@
 {
   "name": "electron-local-transcode-test",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Electron Local Transcode Test",
   "main": ".compiled/index.js",
   "scripts": {
@@ -19,6 +19,7 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "bluebird": "^3.5.1",
+    "electron-is-running-in-asar": "^1.0.0",
     "electron-window-state": "^4.1.1",
     "uuid": "^3.2.1"
   },
@@ -47,7 +48,7 @@
   "build": {
     "appId": "jp.espresso3389.electron-local-transcode-test",
     "copyright": "(C) 2018 Takashi Kawasaki (@espresso3389). All rights reserved.",
-    "asar": false,
+    "asar": true,
     "productName": "Electron Local Transcode Test",
     "files": [
       ".compiled/*",
