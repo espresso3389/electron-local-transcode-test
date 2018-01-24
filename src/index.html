@@ -35,8 +35,8 @@
         console.log(file);
         electron.ipcRenderer.send('movie', {
           filename: file,
-          width: 640,
-          height: 360
+          width: 1920 / 2,
+          height: 1080 / 2
         });
       };
       electron.ipcRenderer.on('movie-uri', (event, arg) => {

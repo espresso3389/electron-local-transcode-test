@@ -78,8 +78,10 @@ http.createServer((request, response) => {
     "-acodec","libvorbis",
     "-g","25",
     "-crf", "30", "-b:v", "2000k",
+    "-pix_fmt", "yuv420p",
     "-deadline", "realtime",
-    "-cpu-used", "6",
+    "-cpu-used", "8",
+    "-threads", "8",
     "pipe:1", // stdout
   ]);
   proc.stderr.on('data', buf => {
