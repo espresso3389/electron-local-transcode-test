@@ -11,7 +11,7 @@ call npm version 1.0.%REV%
 
 call npm install
 REM call node_modules/.bin/electron-rebuild -a ia32
-call node_modules/.bin/electron-rebuild -a x64
+call node_modules\.bin\electron-rebuild -a x64
 call npm run compile
 call npm run dist-win
 
