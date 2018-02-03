@@ -8,7 +8,7 @@
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/.compiled/index.js",
             "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/.compiled/*.js"],
+            "outFiles": ["${workspaceRoot}/.compiled/**/*.js"],
             "preLaunchTask": "compile",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
             "runtimeArgs": [

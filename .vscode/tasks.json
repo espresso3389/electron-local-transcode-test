@@ -11,13 +11,6 @@
       "isTestCommand": false,
       "showOutput": "silent",
       "args": []
-    },
-    {
-      "taskName": "electron-rebuild",
-      "isBuildCommand": true,
-      "showOutput": "always",
-      "isShellCommand": true,
-      "command": "${workspaceRoot}/node_modules/.bin/electron-rebuild"
     }
   ]
 }

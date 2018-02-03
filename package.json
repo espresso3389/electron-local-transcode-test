@@ -27,7 +27,7 @@
     "babel-cli": "^6.26.0",
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "electron": "^1.7.10",
+    "electron": "^1.7.12",
     "electron-builder": "^19.52.1",
     "electron-rebuild": "^1.7.3"
   },
@@ -38,9 +38,9 @@
         "env",
         {
           "targets": {
-            "electron": "1.7.10"
+            "electron": "1.7.12"
           },
-          "forceAllTransforms": true
+          "sourceMaps": "inline"
         }
       ]
     ]
@@ -71,16 +71,22 @@
           "y": 150,
           "type": "file"
         }
-      ]
+      ],
+      "artifactName": "${name}-setup-${version}-${os}.${ext}"
     },
     "mac": {
-      "icon": "build/icons/icon.icns"
+      "icon": "build/icons/icon.icns",
+      "artifactName": "${name}-setup-${version}-${os}.${ext}"
     },
     "win": {
       "icon": "build/icons/icon.ico"
     },
+    "nsis": {
+      "artifactName": "${name}-setup-${version}-${os}.${ext}"
+    },
     "linux": {
-      "icon": "build/icons"
+      "icon": "build/icons",
+      "artifactName": "${name}-setup-${version}-${os}.${ext}"
     }
   }
 }

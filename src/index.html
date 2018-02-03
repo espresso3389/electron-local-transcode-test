@@ -14,12 +14,18 @@
         width: 100%;
         display: none;
       }
+      #test {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+      }
     </style>
   </head>
   <body>
     <div id="clientPane">
         <h1 id="title">Drop a movie file here.</h1>
-        <video id='video' controls autoplay>
+        <video id='video' controls autoplay></video>
+        <a href="http://www.leanbackplayer.com/test/h5mt.html" id="test">http://www.leanbackplayer.com/test/h5mt.html</a>
     </div>
     <script>
       let electron = require('electron');
