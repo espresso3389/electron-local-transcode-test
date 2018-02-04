@@ -76,6 +76,7 @@ http.createServer((request, response) => {
   const proc = child_process.spawn(ffmpeg.path, [
     '-ss', movie.seek,
     '-i', movie.filename,
+    '-ss', 0,
     '-s', movie.width + 'x' + movie.height,
     '-f', 'webm',
     "-vcodec", "libvpx",

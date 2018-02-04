@@ -22,19 +22,19 @@
         position: absolute;
         top: 10;
         right: 10;
-        width: 30%;
         text-align: right;
         display: block;
         font-family: monospace;
+        background: rgba(0,0,0,0.5);
         z-index: 3;
       }
       #stats {
         position: absolute;
         top: 10;
         left: 10;
-        width: 80%;
         display: block;
         font-family: monospace;
+        background: rgba(0,0,0,0.5);
         z-index: 3;
       }
       #seekbar {
@@ -90,6 +90,9 @@
       });
       player.addEventListener('ended', () => {
         isPlaying = false;
+        // FIXME: workaround for visual issues
+        document.getElementById('time').innerText = movieStats.duration + '/' + movieStats.duration;
+        seekbar.value = seekbar.max;
       });
       electron.ipcRenderer.on('movie-url', (event, url) => {
         banner.getContext('2d').drawImage(player, 0, 0);
