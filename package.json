@@ -1,6 +1,6 @@
 {
   "name": "electron-local-transcode-test",
-  "version": "1.0.8",
+  "version": "1.0.12",
   "description": "Electron Local Transcode Test",
   "main": ".compiled/index.js",
   "scripts": {

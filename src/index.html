@@ -27,7 +27,17 @@
         ime-mode: disabled;
         z-index: 3;
       }
-      #stat {
+      #time {
+        position: absolute;
+        top: 10;
+        right: 10;
+        width: 30%;
+        text-align: right;
+        display: block;
+        font-family: monospace;
+        z-index: 3;
+      }
+      #stats {
         position: absolute;
         top: 10;
         left: 10;
@@ -43,7 +53,8 @@
       <video class='fvideo' id='video' autoplay style='z-index: 1'></video>
       <canvas class='fvideo' id='pause' style='z-index: 0'></canvas>
       <input id='input' type='text'>
-      <div id='stat'>Drop movies to the window.</div>
+      <span id='time'>00:00:00.00/00:00:00.00</span>
+      <div id='stats'>Drop movies to the window.</div>
     </div>
     <script>
       let electron = require('electron');
@@ -73,11 +84,16 @@
         banner.style.display = 'block';
         player.style.display = 'block';
       });
-      electron.ipcRenderer.on('movie-stat', (event, stat) => {
+      electron.ipcRenderer.on('movie-url', (event, url) => {
         banner.getContext('2d').drawImage(player, 0, 0);
         banner.style['z-index'] = 2;
-        player.src = stat.url;
-        document.getElementById('stat').innerHTML = Object.keys(stat.movie).map(k => k + ': ' + stat.movie[k] + '<br>').reduce((p, c) => p + c);
+        player.src = url;
+      });
+      electron.ipcRenderer.on('movie-stats', (event, stats) => {
+        document.getElementById('stats').innerHTML = Object.keys(stats).map(k => k + ': ' + stats[k] + '<br>').reduce((p, c) => p + c);
+      });
+      electron.ipcRenderer.on('movie-time', (event, time) => {
+        document.getElementById('time').innerText = time.time + '/' + time.duration;
       });
       const input = document.getElementById('input');
       input.focus();

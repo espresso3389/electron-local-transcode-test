@@ -91,9 +91,32 @@ http.createServer((request, response) => {
     "-cpu-used", String(cpuCount),
     "-threads", String(cpuCount),
     "-stdin",
-    '-loglevel', 'quiet',
+    //'-loglevel', 'quiet',
     "pipe:1"]);
   proc.stdout.pipe(response);
+  let stats = '';
+  readline.createInterface({ input: proc.stderr })
+    .on('line', line => {
+      if (stats != null)
+        stats += line + '\n';
+      if (line.indexOf('frame=') == 0) {
+        if (stats) {
+          movie.created = stats.extract(/creation_time\s+:\s+(\d+-\d+-\d+T\d+:\d+:[\d\.]+\w+)/);
+          const m = stats.match(/Stream.+:.+Video:.+(yuv\w+).+, (\d{3,}x\d{3,}).+, (\d{2}\.\d+|\d{2,}) fps/);
+          if (m) {
+            movie.format = m[1];
+            movie.resolution = m[2];
+            movie.framerate = m[3];
+          }
+          movie.duration = stats.extract(/Duration: (\d{2}:\d{2}:\d{2}\.\d{2}),/);
+          mainWindow.webContents.send('movie-stats', movie);
+          stats = null;
+        }
+        movie.time = line.extract(/time=(\d{2}:\d{2}:\d{2}.\d{2})/);
+        movie.frame = line.extract(/frame=(\s+\d+)/);
+        mainWindow.webContents.send('movie-time', { time: movie.time, duration: movie.duration, frame: movie.frame });
+      }
+    });
   electron.ipcMain.on('seek', (event, seek) => {
     try {
       movie.seek = seek;
@@ -120,31 +143,6 @@ String.prototype.extract = function(re) {
 function openMovie(opts) {
   if (opts.seek == null) opts.seek = 0;
   movie = opts;
-
-  if (movie.duration) {
-    notifyUrl();
-    return;
-  }
-
-  const proc = child_process.spawn(ffmpeg.path, ['-i', movie.filename]);
-  let fulldata = '';
-  proc.stderr.on('data', data => { fulldata += data.toString() });
-  proc.stdout.on('data', data => {});
-  proc.on('close', () => {
-    movie.created = fulldata.extract(/creation_time\s+:\s+(\d+-\d+-\d+T\d+:\d+:[\d\.]+\w+)/);
-    const m = fulldata.match(/Stream.+:.+Video:.+(yuv\w+).+, (\d{3,}x\d{3,}).+, (\d{2}\.\d+|\d{2,}) fps/);
-    if (m) {
-      movie.format = m[1];
-      movie.resolution = m[2];
-      movie.framerate = m[3];
-    }
-    movie.duration = fulldata.extract(/Duration: (\d+:\d+:\d+\.\d+),/);
-    console.log(movie);
-    notifyUrl();
-  });
-}
-
-function notifyUrl() {
   let url = 'http://localhost:' + port + '/' + uuidV4();
-  mainWindow.webContents.send('movie-stat', { url: url, movie: movie });
+  mainWindow.webContents.send('movie-url', url);
 }
