@@ -12,6 +12,7 @@ import uuidV4 from 'uuid/v4';
 import windowStateKeeper from "electron-window-state";
 import isRunningInAsar from 'electron-is-running-in-asar';
 import os from 'os';
+import { clearInterval } from "timers";
 
 const cpuCount = os.cpus().length;
 
@@ -97,8 +98,6 @@ http.createServer((request, response) => {
   let stats = '';
   readline.createInterface({ input: proc.stderr })
     .on('line', line => {
-      if (stats != null)
-        stats += line + '\n';
       if (line.indexOf('frame=') == 0) {
         if (stats) {
           movie.created = stats.extract(/creation_time\s+:\s+(\d+-\d+-\d+T\d+:\d+:[\d\.]+\w+)/);
@@ -111,20 +110,12 @@ http.createServer((request, response) => {
           movie.duration = stats.extract(/Duration: (\d{2}:\d{2}:\d{2}\.\d{2}),/);
           movie.durationInSeconds = timeToSec(movie.duration);
           mainWindow.webContents.send('movie-stats', movie);
+
+          console.log(stats);
           stats = null;
         }
-        movie.time = offsetTime(line.extract(/time=(\d{2}:\d{2}:\d{2}.\d{2})/), movie.seek);
-        movie.seconds = timeToSec(movie.time);
-        movie.frame = Number(line.extract(/frame=\s+(\d+)/));
-        try {
-          mainWindow.webContents.send('movie-time', {
-            time: movie.time,
-            seconds: movie.seconds,
-            duration: movie.duration,
-            durationInSeconds: movie.durationInSeconds,
-            frame: movie.frame });
-        } catch (e) {}
-      }
+      } else if (stats != null)
+      stats += line + '\n';
     });
   electron.ipcMain.on('seek', (event, seek) => {
     try {
@@ -164,19 +155,4 @@ function timeToSec(time) {
     return Number(t[1]) * 3600 + Number(t[2]) * 60 + Number(t[3]);
   }
   return Number(time);
-}
-
-
-function d2(n) { return ('00' + n).slice(-2); }
-
-function secToTime(sec) {
-  const h = Math.floor(sec / 3600); sec -= h * 3600;
-  const m = Math.floor(sec / 60); sec -= m * 60;
-  const s = Math.floor(sec); sec -= s;
-  const ss = Math.floor(sec * 100);
-  return d2(h) + ':' + d2(m) + ':' + d2(s) + '.' + d2(ss);
-}
-
-function offsetTime(time, offset) {
-  return secToTime(timeToSec(time) + timeToSec(offset));
 }

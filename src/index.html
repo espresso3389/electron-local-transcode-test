@@ -77,12 +77,19 @@
       const player = document.getElementById('video');
       const banner = document.getElementById('pause');
       const seekbar = document.getElementById('seekbar');
+      let isPlaying = false;
+      let seekBase = null;
+      let movieStats;
       player.addEventListener('playing', () => {
         banner.style['z-index'] = 0;
         banner.width = player.videoWidth;
         banner.height = player.videoHeight;
         banner.style.display = 'block';
         player.style.display = 'block';
+        isPlaying = true;
+      });
+      player.addEventListener('ended', () => {
+        isPlaying = false;
       });
       electron.ipcRenderer.on('movie-url', (event, url) => {
         banner.getContext('2d').drawImage(player, 0, 0);
@@ -91,15 +98,22 @@
       });
       electron.ipcRenderer.on('movie-stats', (event, stats) => {
         document.getElementById('stats').innerHTML = Object.keys(stats).map(k => k + ': ' + stats[k] + '<br>').reduce((p, c) => p + c);
-        seekbar.max = Math.floor(time.durationInSeconds * 10000);
+        seekbar.max = Math.floor(stats.durationInSeconds * 10000);
         seekbar.disabled = false;
+        movieStats = stats;
       });
-      electron.ipcRenderer.on('movie-time', (event, time) => {
-        document.getElementById('time').innerText = time.time + '/' + time.duration;
-        seekbar.max = Math.floor(time.durationInSeconds * 10000);
-        seekbar.value = Math.floor(time.seconds * 10000);
+      setInterval(() =>{
+        if (isPlaying) {
+          const sec = video.currentTime + seekBase;
+          document.getElementById('time').innerText = secToTime(sec) + '/' + movieStats.duration;
+          seekbar.max = Math.floor(movieStats.durationInSeconds * 10000);
+          seekbar.value = Math.floor(sec * 10000);
+        }
+      }, 100);
+      seekbar.addEventListener('change', () => {
+        seekBase = seekbar.value / 10000;
+        electron.ipcRenderer.send('seek', seekBase);
       });
-      seekbar.addEventListener('change', () => electron.ipcRenderer.send('seek', seekbar.value / 10000));
       function timeToSec(time) {
         if (typeof time == 'number') return time;
         if (typeof time == 'string') {
