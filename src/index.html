@@ -18,15 +18,6 @@
         width: 100%;
         display: block;
       }
-      #input {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: block;
-        ime-mode: disabled;
-        z-index: 3;
-      }
       #time {
         position: absolute;
         top: 10;
@@ -46,19 +37,27 @@
         font-family: monospace;
         z-index: 3;
       }
+      #seekbar {
+        position: absolute;
+        bottom: 5;
+        left: 10;
+        width: 90%;
+        display: block;
+        z-index: 3;
+      }
     </style>
   </head>
   <body>
     <div id="clientPane">
       <video class='fvideo' id='video' autoplay style='z-index: 1'></video>
       <canvas class='fvideo' id='pause' style='z-index: 0'></canvas>
-      <input id='input' type='text'>
       <span id='time'>00:00:00.00/00:00:00.00</span>
       <div id='stats'>Drop movies to the window.</div>
+      <input type="range" id="seekbar" max="10000" min="0" value="0" step="1" disabled>
     </div>
     <script>
-      let electron = require('electron');
-      let clientPane = document.getElementById('clientPane');
+      const electron = require('electron');
+      const clientPane = document.getElementById('clientPane');
       window.onresize = () => {
         clientPane.style.width = window.innerWidth +'px';
         clientPane.style.height = window.innerHeight +'px';
@@ -75,8 +74,9 @@
           seek: 0
         });
       };
-      let player = document.getElementById('video');
-      let banner = document.getElementById('pause');
+      const player = document.getElementById('video');
+      const banner = document.getElementById('pause');
+      const seekbar = document.getElementById('seekbar');
       player.addEventListener('playing', () => {
         banner.style['z-index'] = 0;
         banner.width = player.videoWidth;
@@ -91,19 +91,35 @@
       });
       electron.ipcRenderer.on('movie-stats', (event, stats) => {
         document.getElementById('stats').innerHTML = Object.keys(stats).map(k => k + ': ' + stats[k] + '<br>').reduce((p, c) => p + c);
+        seekbar.max = Math.floor(time.durationInSeconds * 10000);
+        seekbar.disabled = false;
       });
       electron.ipcRenderer.on('movie-time', (event, time) => {
         document.getElementById('time').innerText = time.time + '/' + time.duration;
+        seekbar.max = Math.floor(time.durationInSeconds * 10000);
+        seekbar.value = Math.floor(time.seconds * 10000);
       });
-      const input = document.getElementById('input');
-      input.focus();
-      input.addEventListener('keyup', e => {
-        event.preventDefault();
-        if (e.keyCode === 13) {
-          electron.ipcRenderer.send('seek', input.value);
-          input.value = '';
+      seekbar.addEventListener('change', () => electron.ipcRenderer.send('seek', seekbar.value / 10000));
+      function timeToSec(time) {
+        if (typeof time == 'number') return time;
+        if (typeof time == 'string') {
+          const t = time.match(/(\d{2}):(\d{2}):(\d{2}.\d{2})/);
+          if (!t) return Number(time);
+          return Number(t[1]) * 3600 + Number(t[2]) * 60 + Number(t[3]);
         }
-      });
+        return Number(time);
+      }
+      function d2(n) { return ('00' + n).slice(-2); }
+      function secToTime(sec) {
+        const h = Math.floor(sec / 3600); sec -= h * 3600;
+        const m = Math.floor(sec / 60); sec -= m * 60;
+        const s = Math.floor(sec); sec -= s;
+        const ss = Math.floor(sec * 100);
+        return d2(h) + ':' + d2(m) + ':' + d2(s) + '.' + d2(ss);
+      }
+      function offsetTime(time, offset) {
+        return secToTime(timeToSec(time) + timeToSec(offset));
+      }
     </script>
   </body>
 </html>

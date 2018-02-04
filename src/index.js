@@ -109,12 +109,21 @@ http.createServer((request, response) => {
             movie.framerate = m[3];
           }
           movie.duration = stats.extract(/Duration: (\d{2}:\d{2}:\d{2}\.\d{2}),/);
+          movie.durationInSeconds = timeToSec(movie.duration);
           mainWindow.webContents.send('movie-stats', movie);
           stats = null;
         }
-        movie.time = line.extract(/time=(\d{2}:\d{2}:\d{2}.\d{2})/);
-        movie.frame = line.extract(/frame=(\s+\d+)/);
-        mainWindow.webContents.send('movie-time', { time: movie.time, duration: movie.duration, frame: movie.frame });
+        movie.time = offsetTime(line.extract(/time=(\d{2}:\d{2}:\d{2}.\d{2})/), movie.seek);
+        movie.seconds = timeToSec(movie.time);
+        movie.frame = Number(line.extract(/frame=\s+(\d+)/));
+        try {
+          mainWindow.webContents.send('movie-time', {
+            time: movie.time,
+            seconds: movie.seconds,
+            duration: movie.duration,
+            durationInSeconds: movie.durationInSeconds,
+            frame: movie.frame });
+        } catch (e) {}
       }
     });
   electron.ipcMain.on('seek', (event, seek) => {
@@ -145,4 +154,29 @@ function openMovie(opts) {
   movie = opts;
   let url = 'http://localhost:' + port + '/' + uuidV4();
   mainWindow.webContents.send('movie-url', url);
+}
+
+function timeToSec(time) {
+  if (typeof time == 'number') return time;
+  if (typeof time == 'string') {
+    const t = time.match(/(\d{2}):(\d{2}):(\d{2}.\d{2})/);
+    if (!t) return Number(time);
+    return Number(t[1]) * 3600 + Number(t[2]) * 60 + Number(t[3]);
+  }
+  return Number(time);
+}
+
+
+function d2(n) { return ('00' + n).slice(-2); }
+
+function secToTime(sec) {
+  const h = Math.floor(sec / 3600); sec -= h * 3600;
+  const m = Math.floor(sec / 60); sec -= m * 60;
+  const s = Math.floor(sec); sec -= s;
+  const ss = Math.floor(sec * 100);
+  return d2(h) + ':' + d2(m) + ':' + d2(s) + '.' + d2(ss);
+}
+
+function offsetTime(time, offset) {
+  return secToTime(timeToSec(time) + timeToSec(offset));
 }
