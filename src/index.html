@@ -58,6 +58,14 @@
     <script>
       const electron = require('electron');
       const clientPane = document.getElementById('clientPane');
+      const player = document.getElementById('video');
+      const banner = document.getElementById('pause');
+      const seekbar = document.getElementById('seekbar');
+
+      let isPlaying = false;
+      let seekBase = null;
+      let movieStats;
+
       window.onresize = () => {
         clientPane.style.width = window.innerWidth +'px';
         clientPane.style.height = window.innerHeight +'px';
@@ -67,6 +75,10 @@
         e.preventDefault();
         let file = e.dataTransfer.files[0].path;
         console.log(file);
+        movieStats = {
+          filename: file,
+          duration: '00:00:00.00'
+        };
         electron.ipcRenderer.send('movie', {
           filename: file,
           width: 1280, //1920 / 2,
@@ -74,12 +86,6 @@
           seek: 0
         });
       };
-      const player = document.getElementById('video');
-      const banner = document.getElementById('pause');
-      const seekbar = document.getElementById('seekbar');
-      let isPlaying = false;
-      let seekBase = null;
-      let movieStats;
       player.addEventListener('playing', () => {
         banner.style['z-index'] = 0;
         banner.width = player.videoWidth;
