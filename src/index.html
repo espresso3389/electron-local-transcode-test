@@ -5,27 +5,45 @@
       body {
         background-color: black;
         color: rgb(245, 245, 245);
+        overflow:hidden;
       }
       #clientPane {
         position: absolute;
         top: 0; right: 0; bottom: 0; left: 0;
       }
-      #video {
-        width: 100%;
-        display: none;
-      }
-      #test {
+      .fvideo {
         position: absolute;
         bottom: 0;
+        top: 0;
+        width: 100%;
+        display: block;
+      }
+      #input {
+        position: absolute;
+        bottom: 0;
+        left: 0;
         right: 0;
+        display: block;
+        ime-mode: disabled;
+        z-index: 3;
+      }
+      #stat {
+        position: absolute;
+        top: 10;
+        left: 10;
+        width: 80%;
+        display: block;
+        font-family: monospace;
+        z-index: 3;
       }
     </style>
   </head>
   <body>
     <div id="clientPane">
-        <h1 id="title">Drop a movie file here.</h1>
-        <video id='video' controls autoplay></video>
-        <a href="http://www.leanbackplayer.com/test/h5mt.html" id="test">http://www.leanbackplayer.com/test/h5mt.html</a>
+      <video class='fvideo' id='video' autoplay style='z-index: 1'></video>
+      <canvas class='fvideo' id='pause' style='z-index: 0'></canvas>
+      <input id='input' type='text'>
+      <div id='stat'>Drop movies to the window.</div>
     </div>
     <script>
       let electron = require('electron');
@@ -43,12 +61,32 @@
           filename: file,
           width: 1280, //1920 / 2,
           height: 720, //1080 / 2
+          seek: 0
         });
       };
-      electron.ipcRenderer.on('movie-uri', (event, arg) => {
-        let video = document.getElementById('video');
-        video.style.display = 'block';
-        video.src = arg;
+      let player = document.getElementById('video');
+      let banner = document.getElementById('pause');
+      player.addEventListener('playing', () => {
+        banner.style['z-index'] = 0;
+        banner.width = player.videoWidth;
+        banner.height = player.videoHeight;
+        banner.style.display = 'block';
+        player.style.display = 'block';
+      });
+      electron.ipcRenderer.on('movie-stat', (event, stat) => {
+        banner.getContext('2d').drawImage(player, 0, 0);
+        banner.style['z-index'] = 2;
+        player.src = stat.url;
+        document.getElementById('stat').innerHTML = Object.keys(stat.movie).map(k => k + ': ' + stat.movie[k] + '<br>').reduce((p, c) => p + c);
+      });
+      const input = document.getElementById('input');
+      input.focus();
+      input.addEventListener('keyup', e => {
+        event.preventDefault();
+        if (e.keyCode === 13) {
+          electron.ipcRenderer.send('seek', input.value);
+          input.value = '';
+        }
       });
     </script>
   </body>
