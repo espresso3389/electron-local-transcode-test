@@ -66,6 +66,10 @@
       let seekBase = null;
       let movieStats;
 
+      window.onkeydown = e => {
+        if (e.code == 'Enter')
+          window.location.href = 'https://html5test.com/';
+      };
       window.onresize = () => {
         clientPane.style.width = window.innerWidth +'px';
         clientPane.style.height = window.innerHeight +'px';
