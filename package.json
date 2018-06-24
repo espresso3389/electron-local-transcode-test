@@ -27,9 +27,9 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "electron": "^1.7.12",
-    "electron-builder": "^19.52.1",
+    "babel-preset-env": "^1.7.0",
+    "electron": "^2.0.3",
+    "electron-builder": "^20.15.1",
     "electron-rebuild": "^1.7.3"
   },
   "babel": {
